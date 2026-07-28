@@ -20,7 +20,7 @@
     "description": "Quartz grammar for tree-sitter",
     "authors": [{ "name": "Basalt Project" }],
     "links": {
-      "repository": "https://github.com/BasaltProject/Quartz",
+      "repository": "https://github.com/QuartzProject/Grammars",
       "homepage": "https://quartzlang.org"
     }
   },

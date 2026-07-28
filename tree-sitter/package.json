@@ -6,8 +6,8 @@
   "homepage": "https://quartzlang.org",
   "repository": {
     "type": "git",
-    "url": "https://github.com/BasaltProject/Quartz.git",
-    "directory": "editors/tree-sitter-quartz"
+    "url": "https://github.com/QuartzProject/Grammars.git",
+    "directory": "tree-sitter"
   },
   "keywords": ["incremental", "parsing", "tree-sitter", "quartz"],
   "files": ["grammar.js", "tree-sitter.json", "queries/*", "src/**"],
