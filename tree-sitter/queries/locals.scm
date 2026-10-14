@@ -44,6 +44,9 @@
 (tuple_pattern
   (identifier) @local.definition.var)
 
+(or_pattern
+  (identifier) @local.definition.var)
+
 (const_declaration
   name: (identifier) @local.definition.constant)
 

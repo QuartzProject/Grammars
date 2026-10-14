@@ -413,3 +413,123 @@ fn f(t: (int, str)) {
                 (integer_literal)
                 (identifier))
               (identifier))))))))
+
+================================================================================
+While let, or-patterns and jumps after ??
+================================================================================
+
+fn f(xs: [int?], s: Shape) -> int {
+    while let x = xs.pop() {
+        let v = x ?? continue
+        let w = v.toInt() ?? return -1
+        let z = w ?? break
+    }
+    while c is Cons(v, rest) && v < 3 {
+        c = rest
+    }
+    let ok = s is Circle(r) | Square(r)
+    return match s {
+        Circle(r) | Square(r) => 1
+        null | 0 => 2
+        _ => 3
+    }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_declaration
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (list_type
+          (nullable_type
+            (type_identifier))))
+      (parameter
+        (identifier)
+        (type_identifier)))
+    (type_identifier)
+    (block
+      (while_statement
+        (let_condition
+          (identifier)
+          (call_expression
+            (field_expression
+              (identifier)
+              (identifier))
+            (arguments)))
+        (block
+          (let_declaration
+            (identifier)
+            (binary_expression
+              (identifier)
+              (continue_statement)))
+          (let_declaration
+            (identifier)
+            (binary_expression
+              (call_expression
+                (field_expression
+                  (identifier)
+                  (identifier))
+                (arguments))
+              (return_statement
+                (unary_expression
+                  (integer_literal)))))
+          (let_declaration
+            (identifier)
+            (binary_expression
+              (identifier)
+              (break_statement)))))
+      (while_statement
+        (binary_expression
+          (is_expression
+            (identifier)
+            (variant_pattern
+              (identifier)
+              (pattern_arguments
+                (identifier)
+                (identifier))))
+          (binary_expression
+            (identifier)
+            (integer_literal)))
+        (block
+          (assignment_statement
+            (identifier)
+            (identifier))))
+      (let_declaration
+        (identifier)
+        (is_expression
+          (identifier)
+          (or_pattern
+            (variant_pattern
+              (identifier)
+              (pattern_arguments
+                (identifier)))
+            (variant_pattern
+              (identifier)
+              (pattern_arguments
+                (identifier))))))
+      (return_statement
+        (match_expression
+          (identifier)
+          (match_block
+            (match_arm
+              (or_pattern
+                (variant_pattern
+                  (identifier)
+                  (pattern_arguments
+                    (identifier)))
+                (variant_pattern
+                  (identifier)
+                  (pattern_arguments
+                    (identifier))))
+              (integer_literal))
+            (match_arm
+              (or_pattern
+                (null_literal)
+                (integer_literal))
+              (integer_literal))
+            (match_arm
+              (wildcard_pattern)
+              (integer_literal))))))))

@@ -198,3 +198,29 @@ const S = "{x:>8.2} {n}"
       (string_content)
       (interpolation
         (identifier)))))
+
+================================================================================
+Raw strings
+================================================================================
+
+const A = r"\d{4}-\w+"
+const B = r#"say "hi" {x}"#
+const C = r##"a "# b"##
+const D = r"two
+lines"
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (const_declaration
+    (identifier)
+    (raw_string))
+  (const_declaration
+    (identifier)
+    (raw_string))
+  (const_declaration
+    (identifier)
+    (raw_string))
+  (const_declaration
+    (identifier)
+    (raw_string)))

@@ -44,6 +44,7 @@ module.exports = grammar({
     $.string_content,
     $._multiline_string_content,
     $.block_comment,
+    $.raw_string,
     $._error_sentinel,
   ],
 
@@ -269,7 +270,11 @@ module.exports = grammar({
       field('body', $.block),
     ),
 
-    while_statement: $ => seq('while', field('condition', $._expression), field('body', $.block)),
+    while_statement: $ => seq(
+      'while',
+      field('condition', choice($._expression, $.let_condition)),
+      field('body', $.block),
+    ),
 
     scope_statement: $ => seq('scope', field('body', $.block)),
 
@@ -309,6 +314,7 @@ module.exports = grammar({
       $.float_literal,
       $.char_literal,
       $.string,
+      $.raw_string,
       $.boolean_literal,
       $.null_literal,
     ),
@@ -318,7 +324,6 @@ module.exports = grammar({
         [prec.left, PREC.or, '||'],
         [prec.left, PREC.and, '&&'],
         [prec.left, PREC.compare, choice('==', '!=', '<', '<=', '>', '>=')],
-        [prec.right, PREC.coalesce, '??'],
         [prec.left, PREC.bitor, '|'],
         [prec.left, PREC.bitxor, '^'],
         [prec.left, PREC.bitand, '&'],
@@ -326,11 +331,19 @@ module.exports = grammar({
         [prec.left, PREC.additive, choice('+', '-')],
         [prec.left, PREC.multiplicative, choice('*', '/', '%')],
       ];
-      return choice(...table.map(([assoc, level, operator]) => assoc(level, seq(
-        field('left', $._expression),
-        field('operator', operator),
-        field('right', $._expression),
-      ))));
+      return choice(
+        ...table.map(([assoc, level, operator]) => assoc(level, seq(
+          field('left', $._expression),
+          field('operator', operator),
+          field('right', $._expression),
+        ))),
+        // `x ?? return v`, `x ?? break` and `x ?? continue` leave when x is null.
+        prec.right(PREC.coalesce, seq(
+          field('left', $._expression),
+          field('operator', '??'),
+          field('right', choice($._expression, $.return_statement, $.break_statement, $.continue_statement)),
+        )),
+      );
     },
 
     range_expression: $ => prec.left(PREC.range, seq(
@@ -478,7 +491,11 @@ module.exports = grammar({
       $.tuple_pattern,
       $._literal_pattern,
       $.range_pattern,
+      $.or_pattern,
     ),
+
+    // Above `is`, so `x is A | B` tests both alternatives, as the compiler reads it.
+    or_pattern: $ => prec.left(PREC.cast + 1, seq($._pattern, '|', $._pattern)),
 
     tuple_pattern: $ => seq('(', commaSep($._pattern), ')'),
 

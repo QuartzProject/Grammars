@@ -118,6 +118,10 @@
         "named": true
       },
       {
+        "type": "raw_string",
+        "named": true
+      },
+      {
         "type": "self",
         "named": true
       },
@@ -184,7 +188,15 @@
         "named": true
       },
       {
+        "type": "or_pattern",
+        "named": true
+      },
+      {
         "type": "range_pattern",
+        "named": true
+      },
+      {
+        "type": "raw_string",
         "named": true
       },
       {
@@ -545,6 +557,18 @@
         "types": [
           {
             "type": "_expression",
+            "named": true
+          },
+          {
+            "type": "break_statement",
+            "named": true
+          },
+          {
+            "type": "continue_statement",
+            "named": true
+          },
+          {
+            "type": "return_statement",
             "named": true
           }
         ]
@@ -1844,6 +1868,21 @@
     }
   },
   {
+    "type": "or_pattern",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "_pattern",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "package_declaration",
     "named": true,
     "fields": {
@@ -2047,6 +2086,10 @@
             "named": true
           },
           {
+            "type": "raw_string",
+            "named": true
+          },
+          {
             "type": "self",
             "named": true
           },
@@ -2096,6 +2139,10 @@
           },
           {
             "type": "null_literal",
+            "named": true
+          },
+          {
+            "type": "raw_string",
             "named": true
           },
           {
@@ -2591,6 +2638,10 @@
           {
             "type": "_expression",
             "named": true
+          },
+          {
+            "type": "let_condition",
+            "named": true
           }
         ]
       }
@@ -2927,6 +2978,10 @@
   {
     "type": "pub",
     "named": false
+  },
+  {
+    "type": "raw_string",
+    "named": true
   },
   {
     "type": "ref",

@@ -39,6 +39,7 @@
 
 [
   (string)
+  (raw_string)
   (block_comment)
 ] @indent.auto
 

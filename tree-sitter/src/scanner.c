@@ -8,6 +8,7 @@ enum TokenType {
     STRING_CONTENT,
     MULTILINE_STRING_CONTENT,
     BLOCK_COMMENT,
+    RAW_STRING,
     ERROR_SENTINEL,
 };
 
@@ -105,6 +106,41 @@ static bool scan_string_content(TSLexer* lexer, bool multiline) {
     lexer->mark_end(lexer);
     lexer->result_symbol = multiline ? MULTILINE_STRING_CONTENT : STRING_CONTENT;
     return has_content;
+}
+
+// `r"..."` and `r#"..."#`: no escapes or interpolation; it ends at a quote followed by as many `#` as it opened with.
+static bool scan_raw_string(TSLexer* lexer) {
+    if (lexer->lookahead != 'r') {
+        return false;
+    }
+    advance(lexer);
+    unsigned hashes = 0;
+    while (lexer->lookahead == '#') {
+        advance(lexer);
+        hashes++;
+    }
+    if (lexer->lookahead != '"') {
+        return false;
+    }
+    advance(lexer);
+    while (!lexer->eof(lexer)) {
+        if (lexer->lookahead != '"') {
+            advance(lexer);
+            continue;
+        }
+        advance(lexer);
+        unsigned closing = 0;
+        while (closing < hashes && lexer->lookahead == '#') {
+            advance(lexer);
+            closing++;
+        }
+        if (closing == hashes) {
+            lexer->mark_end(lexer);
+            lexer->result_symbol = RAW_STRING;
+            return true;
+        }
+    }
+    return false;
 }
 
 static bool skip_comment_in_lookahead(TSLexer* lexer) {
@@ -209,13 +245,16 @@ bool tree_sitter_quartz_external_scanner_scan(void* payload, TSLexer* lexer, con
             return true;
         }
         if (!at_slash) {
-            return false;
+            return valid_symbols[RAW_STRING] && scan_raw_string(lexer);
         }
         return valid_symbols[BLOCK_COMMENT] && scan_block_comment(lexer);
     }
     while (lexer->lookahead == ' ' || lexer->lookahead == '\t' || lexer->lookahead == '\r' ||
            lexer->lookahead == '\n') {
         skip(lexer);
+    }
+    if (valid_symbols[RAW_STRING] && lexer->lookahead == 'r') {
+        return scan_raw_string(lexer);
     }
     return valid_symbols[BLOCK_COMMENT] && scan_block_comment(lexer);
 }
