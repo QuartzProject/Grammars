@@ -459,7 +459,23 @@ module.exports = grammar({
       optional(seq('else', field('alternative', choice($.block, $.if_expression)))),
     )),
 
-    let_condition: $ => seq('let', field('name', $.identifier), '=', field('value', $._expression)),
+    // `let name = value` unwraps a nullable; any other pattern is tested like `value is pattern`.
+    let_condition: $ => seq(
+      'let',
+      choice(
+        field('name', $.identifier),
+        field('pattern', choice(
+          $.wildcard_pattern,
+          $.variant_pattern,
+          $.tuple_pattern,
+          $._literal_pattern,
+          $.range_pattern,
+          $.or_pattern,
+        )),
+      ),
+      '=',
+      field('value', $._expression),
+    ),
 
     match_expression: $ => seq('match', field('value', $._expression), field('body', $.match_block)),
 

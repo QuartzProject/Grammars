@@ -3466,12 +3466,50 @@
           "value": "let"
         },
         {
-          "type": "FIELD",
-          "name": "name",
-          "content": {
-            "type": "SYMBOL",
-            "name": "identifier"
-          }
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "name",
+              "content": {
+                "type": "SYMBOL",
+                "name": "identifier"
+              }
+            },
+            {
+              "type": "FIELD",
+              "name": "pattern",
+              "content": {
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "wildcard_pattern"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "variant_pattern"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "tuple_pattern"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_literal_pattern"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "range_pattern"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "or_pattern"
+                  }
+                ]
+              }
+            }
+          ]
         },
         {
           "type": "STRING",

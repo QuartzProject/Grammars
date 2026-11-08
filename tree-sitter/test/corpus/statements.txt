@@ -533,3 +533,65 @@ fn f(xs: [int?], s: Shape) -> int {
             (match_arm
               (wildcard_pattern)
               (integer_literal))))))))
+
+================================================================================
+Let patterns in while and if
+================================================================================
+
+fn f(r: Route, p: (int, int)?) -> int {
+    while let Route.Step(_, rest) = r {
+        r = rest
+    }
+    if let (a, b) | (b, a) = p {
+        return a
+    }
+    return 0
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_declaration
+    (identifier)
+    (parameters
+      (parameter
+        (identifier)
+        (type_identifier))
+      (parameter
+        (identifier)
+        (nullable_type
+          (tuple_type
+            (type_identifier)
+            (type_identifier)))))
+    (type_identifier)
+    (block
+      (while_statement
+        (let_condition
+          (variant_pattern
+            (scoped_identifier
+              (identifier)
+              (identifier))
+            (pattern_arguments
+              (wildcard_pattern)
+              (identifier)))
+          (identifier))
+        (block
+          (assignment_statement
+            (identifier)
+            (identifier))))
+      (expression_statement
+        (if_expression
+          (let_condition
+            (or_pattern
+              (tuple_pattern
+                (identifier)
+                (identifier))
+              (tuple_pattern
+                (identifier)
+                (identifier)))
+            (identifier))
+          (block
+            (return_statement
+              (identifier)))))
+      (return_statement
+        (integer_literal)))))
