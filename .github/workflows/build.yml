@@ -1,0 +1,69 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tree-sitter:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: tree-sitter
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/checkout@v7
+        with:
+          repository: QuartzProject/Quartz
+          path: .deps/quartz
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - run: npm install --no-audit --no-fund
+
+      - name: The committed parser matches grammar.js
+        run: |
+          npm run generate
+          git diff --exit-code -- src || { echo "::error::src/ is stale: run npm run generate and commit it"; exit 1; }
+
+      - name: Corpus
+        run: npx tree-sitter test
+
+      - name: Parse every Quartz source of the core
+        run: |
+          mkdir -p build
+          npx tree-sitter build -o build/quartz.so
+          git -C ../.deps/quartz ls-files '*.qz' '*.qzi' | sed 's|^|../.deps/quartz/|' > build/paths.txt
+          echo "$(wc -l < build/paths.txt) files"
+          npx tree-sitter parse -l build/quartz.so --lang-name quartz --quiet --stat --paths build/paths.txt
+
+  definitions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: TextMate JSON and Notepad++ XML are well formed
+        run: |
+          python3 - <<'PY'
+          import json
+          import xml.etree.ElementTree as ElementTree
+          from pathlib import Path
+          for path in sorted(Path("textmate").glob("*.json")):
+              json.loads(path.read_text(encoding="utf-8"))
+              print("ok", path)
+          for path in sorted(Path("notepadpp").glob("*.xml")):
+              ElementTree.parse(path)
+              print("ok", path)
+          PY
